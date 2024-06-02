@@ -3,3 +3,4 @@ uvicorn>=0.15.0,<0.16.0
 redis
 neo4j
 pymongo
+pandas==2.2.2
