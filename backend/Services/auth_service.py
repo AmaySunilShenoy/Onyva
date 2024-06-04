@@ -8,36 +8,34 @@ from fastapi import HTTPException
 # pw hashing algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+mongo = MongoDBConnection()
 #create a new user in the database after checking if the email alr exists
 def create_user(email: str, password: str):
-    with MongoDBConnection() as mongo:
-        try:
-    
-            users_collection = mongo.addCollection["users"]
+    try:
+        users_collection = mongo.get_collection("users")
+        # check if the email already exists
 
-            # check if the email already exists
-            existing_user = users_collection.find_one({"email": email})
-            if existing_user:
+        existing_user = users_collection.find_one({"email": email})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="email already in use")
 
-                raise HTTPException(status_code=400, detail="email already in use")
+        # Hash the password
+        hashed_password = pwd_context.hash(password)
 
-            # Hash the password
-            hashed_password = pwd_context.hash(password)
+        # Create user document
+        user_document = {
+            "email": email,
+            "hashed_password": hashed_password
+        }
 
-            # Create user document
-            user_document = {
-                "email": email,
-                "hashed_password": hashed_password
-            }
+        # Insert user document into the database
+        result = users_collection.insert_one(user_document)
 
-            # Insert user document into the database
-            result = users_collection.insert_one(user_document)
-
-            return str(result.email) 
-        
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
-        
+        return str(result.inserted_id) 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        mongo.close()
 
 
 

@@ -28,10 +28,13 @@ except:
 
 @app.on_event("startup")
 async def startup_event():
-
     if not Neo4jConnectionManager.verify_connection():
         print("Exiting due to Neo4j connection failure.")
         raise SystemExit("Failed to connect to Neo4j")
+    if not mongo_db.verify_connection():
+        print("Exiting due to MongoDB connection failure.")
+        raise SystemExit("Failed to connect to MongoDB")
+    
     
 
 
