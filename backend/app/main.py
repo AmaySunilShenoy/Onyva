@@ -1,20 +1,31 @@
 from fastapi import FastAPI
 import uvicorn
-from Database_Connection.Redis import connect_to_redis
+from Database_Connection.Redis import RedisConnection
 from Database_Connection.Neo4j import Neo4jConnectionManager
 from Database_Connection.MongoDB import MongoDB_Connection
-
+from fastapi.middleware.cors import CORSMiddleware
 # ROUTES
 from Routes.database_route import router as database_router
-
+from Routes.user_route import router as user_router
 app = FastAPI()
+
 
 # Include routers
 app.include_router(database_router, prefix="/database")
+app.include_router(user_router, prefix="/user")
 
 # Connecting to databases
-redis = connect_to_redis()
+redis = RedisConnection()
 mongo_db = MongoDB_Connection()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust as necessary for your use case
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.on_event("startup")
 async def startup_event():
