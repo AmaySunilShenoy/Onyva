@@ -5,11 +5,13 @@ from Database_Connection.Neo4j import Neo4jConnectionManager
 from Database_Connection.MongoDB import MongoDBConnection
 
 
+
 # ROUTES
 from Routes.database_route import router as database_router
 from Routes.auth_route import router as auth_router
 
 app = FastAPI()
+
 
 
 # Include routers
@@ -24,6 +26,7 @@ try:
 except:
     print(f'Error connecting to MongoDB: {str(e)}')
     raise SystemExit("Failed to connect to MongoDB")
+
 
 
 @app.on_event("startup")

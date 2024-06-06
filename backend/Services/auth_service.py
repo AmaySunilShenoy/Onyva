@@ -2,7 +2,7 @@ import pymongo
 from Database_Connection.MongoDB import MongoDBConnection
 from bson import ObjectId
 from passlib.context import CryptContext
-from fastapi import HTTPException
+from fastapi import HTTPException, Form
 
 
 # pw hashing algorithm
@@ -34,28 +34,31 @@ def create_user(email: str, password: str):
         return str(result.inserted_id) 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        mongo.close()
+    # finally:
+    #     mongo.close()
 
 
 
 
 
-# def get_user(user):
-#     client = get_mongo_client()
-#     users_collection = mongo_db["users"]
+def get_user(email: str, password: str):
+    try:
+        users_collection = mongo.get_collection("users")
 
+        # Find the user by email
+        stored_user = users_collection.find_one({"email": email})
 
-#     # Find the user by email
-#     stored_user = users_collection.find_one({"email": user.email})
-#     if stored_user:
-#         # Verify password
-#         if pwd_context.verify(user.password, stored_user["hashed_password"]):
-#             client.close()
-#             return stored_user
-#         else:
-#             client.close()
-#             raise HTTPException(status_code=401, detail="Invalid credentials")
-#     else:
-#         client.close()
-#         raise HTTPException(status_code=404, detail="User not found")
+        if not stored_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Verify password
+        if pwd_context.verify(password, stored_user["hashed_password"]):
+            # Convert ObjectId to string
+            stored_user["_id"] = str(stored_user["_id"])
+            return stored_user
+        else:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

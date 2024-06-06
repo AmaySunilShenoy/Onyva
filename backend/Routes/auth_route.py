@@ -1,5 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException
-from Services.auth_service import create_user
+from fastapi import FastAPI, APIRouter, HTTPException, Form
+from Services.auth_service import create_user, get_user
 
 router = APIRouter()
 
@@ -11,7 +11,12 @@ async def create_user_route(email: str, password: str):
     except HTTPException as e:
         raise e
 
-# @router.get("/users/login/", tags=["Users"])
-# async def get_user(user):
-#     user_data = get_user(user)
-#     return user_data
+@router.post("/users/login/", tags=["Users"])
+async def get_user_route(email: str , password: str ):
+    try:
+        user_data = get_user(email, password)
+        return user_data
+    except HTTPException as e:
+        raise e
+
+

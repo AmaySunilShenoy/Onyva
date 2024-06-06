@@ -21,4 +21,5 @@ class MongoDBConnection:
         return MongoDBConnection.db[collection_name]
 
     def close(self):
-        MongoDBConnection.client.close()
+        if MongoDBConnection.client:
+            MongoDBConnection.client.close()
