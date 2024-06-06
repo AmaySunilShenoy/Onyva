@@ -21,7 +21,8 @@ def create_parent_station_relationships(tx, stops):
                 """
                 MATCH (a:Stop {stop_id: $stop_id})
                 MATCH (b:Stop {stop_id: $parent_station})
-                CREATE (a)-[:PARENT_STATION]->(b)
+                CREATE (a)-[:PARENT_STATION {parent: $parent_station, child: $stop_id}]->(b)
+                CREATE (b)-[:CHILD_STATION {parent: $parent_station, child: $stop_id}]->(a)
                 """,
                 stop_id=stop['stop_id'],
                 parent_station=stop['parent_station']
