@@ -4,3 +4,4 @@ redis
 neo4j
 pymongo
 pandas==2.2.2
+passlib
