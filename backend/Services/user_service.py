@@ -43,4 +43,17 @@ def get_subscriptions(email: str):
 
     return subscriptions
 
+# user can report a crime and it will be published to all subscribers
+def publish_crime_report(email: str,route_id, crime_report: str):
+    crime_report_list = ['vehicle accident', 'theft', 'assault', 'vandalism']
+    if crime_report not in crime_report_list:
+        return {"error": "Invalid crime report"}
+    # can be published only once in 1 hour Hence check if already published
+    if redis.get(f"route_id:{route_id}:{crime_report}"):
+        return {"error": "Crime report already published"}
+    # Publish the crime report to all subscribers
+    redis.publish(email, json.dumps({"route_id": route_id, "crime_report": crime_report}))
+    return {"success": "crime report published"}
+
+
 
