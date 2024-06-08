@@ -16,12 +16,8 @@ app.include_router(path_router, prefix="/path")
 # Connecting to databases
 redis = connect_to_redis()
 mongo_db = MongoDB_Connection()
+neo4j = Neo4jConnectionManager().verify_connection()
 
-@app.on_event("startup")
-async def startup_event():
-    if not Neo4jConnectionManager.verify_connection():
-        print("Exiting due to Neo4j connection failure.")
-        raise SystemExit("Failed to connect to Neo4j")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
