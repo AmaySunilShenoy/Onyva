@@ -3,7 +3,7 @@ from Services.auth_service import create_user, get_user
 
 router = APIRouter()
 
-@router.post("/create/", tags=["Users"])
+@router.post("/create/", tags=["Authentication"])
 async def create_user_route(email: str, password: str):
     try:
         user_id =  create_user(email, password)
@@ -11,7 +11,7 @@ async def create_user_route(email: str, password: str):
     except HTTPException as e:
         raise e
 
-@router.post("/users/login/", tags=["Users"])
+@router.post("/users/login/", tags=["Authentication"])
 async def get_user_route(email: str , password: str ):
     try:
         user_data = get_user(email, password)
