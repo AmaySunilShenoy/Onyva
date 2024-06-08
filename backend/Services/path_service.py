@@ -55,11 +55,9 @@ def find_path_between_stops(start: str, end: str, time: str):
                 return None
             interleaved_list = []
             for record in result:
-                print('record', record)
                 path = record['finalPath']
                 if path is None:
-                    continue
-                allRoutes = record['allRoutes']
+                    return None
                 nodes = path.nodes
                 relationships = path.relationships
                 print('node length', len(nodes))
@@ -68,13 +66,24 @@ def find_path_between_stops(start: str, end: str, time: str):
                 for i in range(max(len(nodes), len(relationships))):
                     if i < len(nodes):
                         if i < len(relationships):
+                            nodes_attributes =['stop_id', 'stop_name', 'stop_lat', 'stop_lon']
+                            if relationships[i]['route_id']:
+                                relationships_attributes = ['route_id', 'route_name', 'route_type']
+                            else:
+                                relationships_attributes = ['parent', 'child']
                             path_info = {
-                                "stop": nodes[i], "route": relationships[i]}
+                                "stop": {nodes_attributes[j]: nodes[i][nodes_attributes[j]] for j in range(len(nodes_attributes))},
+                                "route": {relationships_attributes[j]: relationships[i][relationships_attributes[j]] for j in range(len(relationships_attributes))}
+                            }
                         else:
                             path_info = {
-                                "stop": nodes[i], "route": relationships[i-1]}
+                                "stop": {nodes_attributes[j]: nodes[i][nodes_attributes[j]] for j in range(len(nodes_attributes))},
+                                "route": {relationships_attributes[j]: relationships[i-1][relationships_attributes[j]] for j in range(len(relationships_attributes))}
+                            }
                         interleaved_list.append(path_info)
-                return interleaved_list
+
+            return interleaved_list
+
     except Exception as e:
         print(f"Failed to find path: {e}")
         return None

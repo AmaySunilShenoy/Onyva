@@ -1,11 +1,12 @@
 from Database_Connection.Redis import RedisConnection
 import json
 import concurrent.futures
-import time
+from fastapi import WebSocket
 
 redis = RedisConnection.get_redis()
 
-def handle_messages(email: str, websocket):
+
+async def handle_messages(email: str, websocket: WebSocket):
     pubsub = redis.pubsub()
     pubsub.subscribe(email)
     try:
@@ -13,7 +14,7 @@ def handle_messages(email: str, websocket):
             if message['type'] == 'message' and message['channel'].decode() == email:
                 data = message['data'].decode()
                 print(f"Sending message to {email}: {data}")
-                websocket.send_text(data)
+                await websocket.send_text(data)
     except Exception as e:
         print(f"Error handling messages for {email}: {e}")
 
@@ -23,7 +24,6 @@ def subscribe_to_route(route_id: str, email: str):
         return {"success": "unsubscribed"}
 
     redis.sadd(f"route:{route_id}", email)
-    redis.publish(email, json.dumps({"route_id": route_id, "status": "subscribed"}))
     return {"success": "subscribed"}
 
 def check_membership(route_id, email):
@@ -38,10 +38,10 @@ def get_subscriptions(email: str):
                 subscriptions.append(route_id.decode().split(":", 1)[1])
     return subscriptions
 
-def publish_crime_report(email: str, route_id: str, crime_report: str):
-    crime_report_list = ['vehicle accident', 'theft', 'assault', 'vandalism']
+def publish_crime_report(email, route_id, crime_report):
+    crime_report_list = ['accident', 'theft', 'assault', 'vandlism', 'lost bag', 'delay', 'other'] 
     if crime_report not in crime_report_list:
-        return {"error": "Invalid crime report"}
+        return {"error": "Invalid crime report type. Please choose from: accident, theft, assault, vandalism, lost bag, delay, other"}
 
     report_key = f"route_id:{route_id}:{crime_report}"
     if redis.get(report_key):

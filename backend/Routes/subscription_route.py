@@ -1,5 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, WebSocket, WebSocketDisconnect, HTTPException
-from Services.user_service import (
+from Services.subscription_service import (
     subscribe_to_route,
     handle_messages,
     get_subscriptions,
@@ -10,12 +10,12 @@ from Services.user_service import (
 
 router = APIRouter()
 
-@router.get("/subscribe", tags=["User"])
+@router.get("/subscribe", tags=["Ligne"])
 async def subscribe_route_updates(email: str, route_id: str):
     result = subscribe_to_route(route_id, email)
     return result
 
-@router.get("/subscriptions", tags=["User"])
+@router.get("/subscriptions", tags=["Ligne"])
 async def subscriptions(email: str):
     subscriptions = get_subscriptions(email)
     return {"subscriptions": list(subscriptions)}
@@ -23,22 +23,22 @@ async def subscriptions(email: str):
 @router.websocket("/ws/{email}")
 async def websocket_endpoint(websocket: WebSocket, email: str):
     await websocket.accept()
-    background_tasks = BackgroundTasks()
-    background_tasks.add_task(handle_messages, email, websocket)
     try:
-        while True:
-            await websocket.receive_text()
+        await handle_messages(email, websocket)
     except WebSocketDisconnect:
         print(f"Client {email} disconnected")
+    except Exception as e:
+        print(f"Error in websocket for {email}: {e}")
 
-@router.get("/publish", tags=["User"])
+
+@router.get("/publish", tags=["Ligne"])
 async def crime_report(email: str, route_id: str, crime_report: str):
     result = publish_crime_report(email, route_id, crime_report)
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
     return result
 
-@router.get("/reports", tags=["User"])
+@router.get("/reports", tags=["Ligne"])
 async def get_subscribed_reports(email: str):
     reports = get_reports_for_subscriptions(email)
     return {"reports": reports}
