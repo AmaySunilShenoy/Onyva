@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.get("/find", tags=["Path"])
 # for loading the data into the Neo4j database
-async def find_path(start_latitude: float,start_longitude:float,end_latitude:float, end_longitude:float):
+async def find_path(start_latitude: float,start_longitude:float,end_latitude:float, end_longitude:float, time:str):
     startStops = find_closest_stops(start_latitude,start_longitude)
     endStops = find_closest_stops(end_latitude,end_longitude)
     all_paths = []
@@ -18,7 +18,7 @@ async def find_path(start_latitude: float,start_longitude:float,end_latitude:flo
         start = st_stop['stop_id']
         for en_stop in endStops:
             end = en_stop['stop_id']
-            path = find_path_between_stops(start, end)
+            path = find_path_between_stops(start, end,time)
             if path is not None:
                 print('path was found between', st_stop['stop_name'],start, 'and', en_stop['stop_name'],end)
                 all_paths.append(path)
