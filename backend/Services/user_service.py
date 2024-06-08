@@ -1,10 +1,10 @@
 from Database_Connection.Redis import RedisConnection
 import json
 import concurrent.futures
+import time
 
 redis = RedisConnection.get_redis()
 
-# Background task to handle messages
 def handle_messages(email: str, websocket):
     pubsub = redis.pubsub()
     pubsub.subscribe(email)
@@ -18,21 +18,17 @@ def handle_messages(email: str, websocket):
         print(f"Error handling messages for {email}: {e}")
 
 def subscribe_to_route(route_id: str, email: str):
-    # Check if already subscribed
     if redis.sismember(f"route:{route_id}", email):
         redis.srem(f"route:{route_id}", email)
         return {"success": "unsubscribed"}
 
-    # Subscribe and add to the route set
     redis.sadd(f"route:{route_id}", email)
     redis.publish(email, json.dumps({"route_id": route_id, "status": "subscribed"}))
     return {"success": "subscribed"}
 
-
 def check_membership(route_id, email):
     return redis.sismember(route_id, email)
 
-#  Parellezation of the check_membership function'
 def get_subscriptions(email: str):
     subscriptions = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -40,20 +36,39 @@ def get_subscriptions(email: str):
         for future, route_id in zip(concurrent.futures.as_completed(futures), redis.scan_iter(match="route:*")):
             if future.result():
                 subscriptions.append(route_id.decode().split(":", 1)[1])
-
     return subscriptions
 
-# user can report a crime and it will be published to all subscribers
-def publish_crime_report(email: str,route_id, crime_report: str):
+def publish_crime_report(email: str, route_id: str, crime_report: str):
     crime_report_list = ['vehicle accident', 'theft', 'assault', 'vandalism']
     if crime_report not in crime_report_list:
         return {"error": "Invalid crime report"}
-    # can be published only once in 1 hour Hence check if already published
-    if redis.get(f"route_id:{route_id}:{crime_report}"):
+
+    report_key = f"route_id:{route_id}:{crime_report}"
+    if redis.get(report_key):
         return {"error": "Crime report already published"}
-    # Publish the crime report to all subscribers
-    redis.publish(email, json.dumps({"route_id": route_id, "crime_report": crime_report}))
+
+    redis.set(report_key, email) 
+    redis.publish(route_id, json.dumps({"route_id": route_id, "crime_report": crime_report}))
     return {"success": "crime report published"}
 
+def fetch_reports_for_route(route_id: str):
+    reports = []
+    for key in redis.scan_iter(match=f"route_id:{route_id}:*"):
+        report = key.decode().split(":")[-1]
+        reports.append({"route_id": route_id, "crime_report": report})
+    return reports
 
+def get_reports_for_subscriptions(email: str):
+    subscriptions = get_subscriptions(email)
+    reports = []
+    for route_id in subscriptions:
+        route_reports = fetch_reports_for_route(route_id)
+        reports.extend(route_reports)
+    return reports
 
+def get_all_reports():
+    reports = []
+    for key in redis.scan_iter(match="route_id:*"):
+        report = key.decode().split(":")[-1]
+        reports.append({"route_id": key.decode().split(":")[1] +":"+ key.decode().split(":")[2], "crime_report": report})
+    return reports

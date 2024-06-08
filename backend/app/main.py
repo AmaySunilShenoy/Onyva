@@ -6,6 +6,7 @@ from Database_Connection.MongoDB import MongoDBConnection
 from fastapi.middleware.cors import CORSMiddleware
 # ROUTES
 from Routes.database_route import router as database_router
+from Routes.path_route import router as path_router
 from Routes.user_route import router as user_router
 from Routes.auth_route import router as auth_router
 
@@ -14,10 +15,12 @@ app = FastAPI()
 
 # Include routers
 app.include_router(database_router, prefix="/database")
+app.include_router(path_router, prefix="/path")
 app.include_router(user_router, prefix="/user")
 app.include_router(auth_router, prefix="/auth")
 
 # Connecting to databases
+neo4j = Neo4jConnectionManager().verify_connection()
 redis = RedisConnection()
 mongo_db = MongoDBConnection()
 try:
@@ -37,16 +40,6 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-async def startup_event():
-    if not Neo4jConnectionManager.verify_connection():
-        print("Exiting due to Neo4j connection failure.")
-        raise SystemExit("Failed to connect to Neo4j")
-    if not mongo_db.verify_connection():
-        print("Exiting due to MongoDB connection failure.")
-        raise SystemExit("Failed to connect to MongoDB")
-    
-    
 
 
 if __name__ == "__main__":
