@@ -7,8 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # ROUTES
 from Routes.database_route import router as database_router
 from Routes.path_route import router as path_router
-from Routes.subscription_route import router as user_router
+from Routes.subscription_route import router as subscription_router
 from Routes.auth_route import router as auth_router
+from Routes.user_route import router as user_router
 
 app = FastAPI()
 
@@ -49,8 +50,10 @@ async def add_user_id(request, call_next):
 # Include routers
 app.include_router(database_router, prefix="/database")
 app.include_router(path_router, prefix="/path")
-app.include_router(user_router, prefix="/ligne")
+app.include_router(subscription_router, prefix="/ligne")
 app.include_router(auth_router, prefix="/auth")
+app.include_router(user_router, prefix="/user")
+
 
 
 if __name__ == "__main__":
