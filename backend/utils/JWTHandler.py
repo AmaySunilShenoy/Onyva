@@ -14,6 +14,7 @@ class JWT:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     JWT_REFRESH_SECRET_KEY = os.getenv("JWT_REFRESH_SECRET_KEY")
 
+    # Create access token
     @classmethod
     def create_access_token(cls, data: dict, expires_delta: Union[timedelta, None] = None):
         to_encode = data.copy()
@@ -25,6 +26,7 @@ class JWT:
         encoded_jwt = jwt.encode(to_encode, cls.JWT_SECRET_KEY, algorithm=cls.ALGORITHM)
         return encoded_jwt
     
+    # Create refresh token
     @classmethod
     def create_refresh_token(cls, data: dict, expires_delta: Union[timedelta, None] = None):
         to_encode = data.copy()
@@ -36,6 +38,8 @@ class JWT:
         encoded_jwt = jwt.encode(to_encode, cls.JWT_REFRESH_SECRET_KEY, algorithm=cls.ALGORITHM)
         return encoded_jwt
     
+
+    # Decode token
     @classmethod
     def decode_token(cls, token: str) -> Any:
         try:

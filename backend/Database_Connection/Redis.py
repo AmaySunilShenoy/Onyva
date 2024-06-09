@@ -1,6 +1,7 @@
 # Connect to Redis
 from redis import Redis
 
+# Class to handle Redis connection and global access to the database
 class RedisConnection:
     # Redis connection
     redis = None

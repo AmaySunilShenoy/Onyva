@@ -2,6 +2,7 @@
 from Database_Connection.Neo4j import Neo4jConnectionManager
 import pandas as pd
 
+# Create nodes for each stop (loaded from csv file)
 def create_stop_nodes(tx, stops):
     for stop in stops:
         tx.run(
@@ -14,6 +15,7 @@ def create_stop_nodes(tx, stops):
             stop_lon=stop['stop_lon']
         )
 
+# Create parent station relationships between parent and child stations
 def create_parent_station_relationships(tx, stops):
     for stop in stops:
         if stop['parent_station']:
@@ -28,6 +30,7 @@ def create_parent_station_relationships(tx, stops):
                 parent_station=stop['parent_station']
             )
 
+# Create next stop relationships between stops (using the stop sequence data from csv file)
 def create_next_stop_relations_batch(tx, batch):
     tx.run(
         """
@@ -38,6 +41,7 @@ def create_next_stop_relations_batch(tx, batch):
         """, batch=batch
     )
 
+# Process relationships in batches
 def process_relationships_in_batches(session, stop_sequence_df, batch_size=1000):
     batch = []
     total_batches = 0
@@ -71,7 +75,7 @@ def process_relationships_in_batches(session, stop_sequence_df, batch_size=1000)
         total_batches += 1
         print(f"Processed final batch {total_batches}")
 
-
+# Initialize the database with stops and stop sequence data (and creating indexes)
 def initialize_database(stops_df, stop_sequence_df):
     with Neo4jConnectionManager.get_session() as session:
         # Create indexes

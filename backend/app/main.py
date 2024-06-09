@@ -10,7 +10,9 @@ from Routes.path_route import router as path_router
 from Routes.subscription_route import router as subscription_router
 from Routes.auth_route import router as auth_router
 from Routes.user_route import router as user_router
-from Services.JWTHandler import JWT
+
+# JWT
+from utils.JWTHandler import JWT
 
 app = FastAPI()
 
@@ -18,26 +20,27 @@ jwt = JWT()
 
 
 # Connecting to databases
-neo4j = Neo4jConnectionManager().verify_connection()
-redis = RedisConnection()
 mongo_db = MongoDBConnection()
 try:
     mongo_db.connect()
-except:
-    print(f'Error connecting to MongoDB: {str(e)}')
-    raise SystemExit("Failed to connect to MongoDB")
+    Neo4jConnectionManager().verify_connection()
+    RedisConnection().get_redis()
+except Exception as e:
+    # This will print sometimes since the web server starts before the database is ready (docker-compose issue)
+    print(f'Error connecting to database: {str(e)}')
 
 
 
+# Add middleware to allow CORS (will be implemented in the frontend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust as necessary for your use case
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Add middleware to add user_id to the request
+# Add middleware to add user_id to the request by decoding the JWT token
 @app.middleware("http")
 async def add_user_id(request, call_next):
     token = request.headers.get("Authorization")
@@ -52,7 +55,7 @@ async def add_user_id(request, call_next):
     return response
 
 
-# Include routers
+# Include routers with different prefixes
 app.include_router(database_router, prefix="/database")
 app.include_router(path_router, prefix="/path")
 app.include_router(subscription_router, prefix="/ligne")
@@ -61,5 +64,6 @@ app.include_router(user_router, prefix="/user")
 
 
 
+# Run the server
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
