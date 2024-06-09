@@ -76,8 +76,9 @@ def initialize_database(stops_df, stop_sequence_df):
     with Neo4jConnectionManager.get_session() as session:
         # Create indexes
         
-        session.run("CREATE INDEX FOR (s:Stop) ON (s.stop_id)")
-
+        session.run("CREATE INDEX index_stop_id FOR (s:Stop) ON (s.stop_id)")
+        session.run("CREATE INDEX index_stop_location FOR (s:Stop) ON (s.stop_lat, s.stop_lon)")
+        session.run("CREATE INDEX index_next_stop FOR ()-[r:NEXT_STOP]-() ON (r.route_id)")
         # Create nodes for each stop
         session.write_transaction(create_stop_nodes, stops_df.to_dict('records'))
         print('added nodes')

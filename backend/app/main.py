@@ -10,10 +10,11 @@ from Routes.path_route import router as path_router
 from Routes.subscription_route import router as subscription_router
 from Routes.auth_route import router as auth_router
 from Routes.user_route import router as user_router
+from Services.JWTHandler import JWT
 
 app = FastAPI()
 
-
+jwt = JWT()
 
 
 # Connecting to databases
@@ -39,9 +40,13 @@ app.add_middleware(
 # Add middleware to add user_id to the request
 @app.middleware("http")
 async def add_user_id(request, call_next):
-    user_id = request.headers.get("user_id")
-    if user_id is None:
+    token = request.headers.get("Authorization")
+    if not token:
         user_id = 'guest' + str(request.client.host)
+        # remove the bearer from the token
+    else:
+        token = token.split(" ")[1]
+        user_id = jwt.get_user_id(token)
     request.state.user_id = user_id
     response = await call_next(request)
     return response

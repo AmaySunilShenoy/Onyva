@@ -6,8 +6,10 @@ router = APIRouter()
 @router.post("/create/", tags=["Authentication"])
 async def create_user_route(email: str, password: str):
     try:
-        user_id =  create_user(email, password)
-        return {"user_id": user_id, "message": "User created successfully"}
+        user_token =  create_user(email, password)
+        return {"User": user_token, "message": "User created successfully"}
+        # logging the user in
+        
     except HTTPException as e:
         raise e
 
@@ -15,7 +17,7 @@ async def create_user_route(email: str, password: str):
 async def get_user_route(email: str , password: str ):
     try:
         user_data = get_user(email, password)
-        return user_data
+        return {"User": user_data, "message": "User logged in successfully"}
     except HTTPException as e:
         raise e
 
