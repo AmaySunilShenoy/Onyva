@@ -1,11 +1,25 @@
-import pymongo
+from pymongo import MongoClient
 
 
-def MongoDB_Connection():
-    # Connect to MongoDB
-    mongo_client = pymongo.MongoClient("mongodb://mongodb:27017/")
-    # Replace "mydatabase" with your database name
-    mongo_db = mongo_client["mydatabase"]
+class MongoDBConnection:
+    client = None
+    db = None
 
-    return mongo_db
+    def connect(self):
+        MongoDBConnection.client = MongoClient("mongodb://mongo:27017")
+        MongoDBConnection.db = MongoDBConnection.client["onyva"]
+        
+    def verify_connection(self):
+        try:
+            self.connect()
+            return True
+        except Exception as e:
+            print(f"Failed to connect to MongoDB: {e}")
+            return False
 
+    def get_collection(self, collection_name):
+        return MongoDBConnection.db[collection_name]
+
+    def close(self):
+        if MongoDBConnection.client:
+            MongoDBConnection.client.close()
