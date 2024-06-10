@@ -49,8 +49,9 @@ async def find_path(start_latitude: float,start_longitude:float,end_latitude:flo
             end = en_stop['stop_id']
 
             # Find path and journey time between stops
-            path, journey_time = find_path_between_stops(start, end,time)
-            if path is not None:
+            result = find_path_between_stops(start, end,time)
+            if result is not None:
+                path, journey_time = result
                 all_paths.append({"path": path, "journey_time": f"{journey_time} mins"})
 
     # Sort the paths by length (shortest path first)

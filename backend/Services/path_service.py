@@ -45,7 +45,7 @@ def find_path_between_stops(start: str, end: str, time: str):
                 WHEN nbstations <= nbstations2 + 5 THEN path
                 ELSE path2
             END AS finalPath
-            RETURN finalPath, allRoutes
+            RETURN finalPath
             """
     try:
         # Dictionary to store the time taken for each type of transport
@@ -103,7 +103,7 @@ def find_path_between_stops(start: str, end: str, time: str):
                             }
                         interleaved_list.append(path_info)
 
-            return interleaved_list, journey_time
+            return (interleaved_list, journey_time)
 
     except Exception as e:
         print(f"Failed to find path: {e}")
