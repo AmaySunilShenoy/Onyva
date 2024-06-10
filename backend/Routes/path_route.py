@@ -9,15 +9,18 @@ router = APIRouter()
 redis = RedisConnection.get_redis()
 
 @router.get("/find", tags=["Journey"])
-async def find_path(start_latitude: float,start_longitude:float,end_latitude:float, end_longitude:float, time:str,request: Request,  q: Optional[str] = Query(None, )):
+async def find_path(start_latitude: float,start_longitude:float,end_latitude:float, end_longitude:float, time:str,request: Request):
     """
-    Find the path between two stops given the start and end coordinates and the time of travel. Note the time format should be of 'XX:XX:XX'. 
+    Find the path between two stops given the start and end coordinates and the time of travel.
+    **Note the time format should be of 'XX:XX:XX'**. <br>
     As an example you can use the following coordinates:
+    ```
     start_latitude = 48.786570
     start_longitude = 2.351090
     end_latitude = 48.860600
     end_longitude = 2.349340
     time = '08:00:00'
+    ```
     """
 
     # Check if the search key exists in the cache (redis)
@@ -75,7 +78,7 @@ async def find_path(start_latitude: float,start_longitude:float,end_latitude:flo
     return all_paths
 
 @router.get("/find/closest", tags=["Journey"])
-async def find_closest(lat: float, lon: float, request: Request, q: Optional[str] = Query(None, )):
+async def find_closest(lat: float, lon: float, request: Request):
     """
     Find the closest stops to the given coordinates. (used to find the closest stops to the user's location)
     For example, you can use the following coordinates:
@@ -118,7 +121,7 @@ async def find_closest(lat: float, lon: float, request: Request, q: Optional[str
 
 
 @router.get("/find/recent", tags=["Journey"])
-async def get_recent_searches(request: Request, q: Optional[str] = Query(None, )):
+async def get_recent_searches(request: Request):
     """
     Get the 5 most recent searches made by the user, and get the respective results from the cache. (which will be stored for 30 minutes)
     """
@@ -159,7 +162,7 @@ async def get_recent_searches(request: Request, q: Optional[str] = Query(None, )
 
 # Clear recent searches
 @router.get("/clear_recent", tags=["Journey"])
-async def clear_recent_searches(request: Request, q: Optional[str] = Query(None, )):
+async def clear_recent_searches(request: Request):
     """
     Clear the recent searches made by the user. (clears the recent searches and stations)
     """

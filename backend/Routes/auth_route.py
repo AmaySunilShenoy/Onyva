@@ -5,7 +5,7 @@ from typing import Optional
 router = APIRouter()
 
 @router.post("/create/", tags=["Authentication"])
-async def create_user_route(email: str, password: str, q: Optional[str] = Query(None, )):
+async def create_user_route(email: str, password: str):
     """
     Create a new user in the database with the email and password provided
     """
@@ -20,7 +20,7 @@ async def create_user_route(email: str, password: str, q: Optional[str] = Query(
         raise e
 
 @router.post("/users/login/", tags=["Authentication"])
-async def get_user_route(email: str , password: str, q: Optional[str] = Query(None, ) ):
+async def get_user_route(email: str , password: str ):
     """
     Get user from the database with the email and password provided
     """

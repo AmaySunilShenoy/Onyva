@@ -14,7 +14,7 @@ async def get_user_id(request: Request):
     return user_id
 
 @router.post("/add_route_to_fav", tags=["User"])
-async def add_route_to_fav_route( route_id: str, request: Request, q: Optional[str] = Query(None, )):
+async def add_route_to_fav_route( route_id: str, request: Request):
     """
     Add a route to the user's favourite routes (MongoDB)
     """
@@ -23,7 +23,7 @@ async def add_route_to_fav_route( route_id: str, request: Request, q: Optional[s
 
 #crud on users
 @router.put("/edit-email", tags=["User"])
-async def update_email_route(new_email: str, user_id : str = Depends(get_user_id), q: Optional[str] = Query(None, )):
+async def update_email_route(new_email: str, user_id : str = Depends(get_user_id)):
     """
     Update the email of the user with the new email provided
     """
@@ -36,7 +36,7 @@ async def update_email_route(new_email: str, user_id : str = Depends(get_user_id
     
 
 @router.put("/edit-name", tags=["User"])
-async def edit_name_route(name: str, user_id : str = Depends(get_user_id), q: Optional[str] = Query(None, )):
+async def edit_name_route(name: str, user_id : str = Depends(get_user_id)):
     """
     Edit a name to the user with the name provided
     """
@@ -49,7 +49,7 @@ async def edit_name_route(name: str, user_id : str = Depends(get_user_id), q: Op
 
 
 @router.delete("/delete-user-name", tags=["User"])
-async def delete_user_name_route(user_id : str = Depends(get_user_id), q: Optional[str] = Query(None,  )):
+async def delete_user_name_route(user_id : str = Depends(get_user_id)):
     """
     Delete the name of the user
     """
@@ -61,7 +61,7 @@ async def delete_user_name_route(user_id : str = Depends(get_user_id), q: Option
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.delete("/delete-user", tags=["User"])
-async def delete_user_route(user_id : str = Depends(get_user_id), q: Optional[str] = Query(None,  )):
+async def delete_user_route(user_id : str = Depends(get_user_id)):
     """
     Delete the user
     """
@@ -76,7 +76,7 @@ async def delete_user_route(user_id : str = Depends(get_user_id), q: Optional[st
 
 # viewing all the mongo data
 @router.get("/all_users/", tags=["Admin"])
-async def view_all_data_route(q: Optional[str] = Query(None,  )):
+async def view_all_data_route():
     """
     Get all the users data from the MongoDB **(Only for Admin)**
     """

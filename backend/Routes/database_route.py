@@ -12,7 +12,7 @@ redis  = RedisConnection.get_redis()
 
 @router.get("/Neo4j/init", tags=["Database Setup"])
 # for loading the data into the Neo4j database
-async def init( q: Optional[str] = Query(None, )):
+async def init():
     """
     Load the stops and routes data into the Neo4j database (the csv files are in Database_Connection/DataFiles)
     """

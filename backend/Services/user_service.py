@@ -9,12 +9,12 @@ mongo = MongoDBConnection()
 
 
 jwt = JWT()
-users_collection = mongo.get_collection("users")
 
 
 # user can update their email
 def update_user_email(user_id: str, new_email: str):
     try:
+        users_collection = mongo.get_collection("users")
         # Check if the new email is already in use
         existing_email = users_collection.find_one({"email": new_email})
         if existing_email:
@@ -34,6 +34,7 @@ def update_user_email(user_id: str, new_email: str):
 # user can add/ edit in name
 def edit_user_name(user_id: str, name: str):
     try:
+        users_collection = mongo.get_collection("users")
         # Check if the user exists
         user = users_collection.find({"_id": ObjectId(user_id)})
         if user:
@@ -53,6 +54,8 @@ def edit_user_name(user_id: str, name: str):
 # user can delete their name
 def delete_user_name(user_id: str):
     try:
+        users_collection = mongo.get_collection("users")
+
         # Check if the user exists
         user = users_collection.find_one({"_id": ObjectId(user_id)})
         if user:
@@ -68,6 +71,7 @@ def delete_user_name(user_id: str):
 #  user can delete their account
 def delete_user(user_id: str):
     try:
+        users_collection = mongo.get_collection("users")
         # Check if the user exists
         result = users_collection.delete_one({"_id": ObjectId(user_id)})
 
